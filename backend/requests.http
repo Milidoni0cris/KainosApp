@@ -1,0 +1,28 @@
+### Listar productos activos
+GET http://localhost:3000/productos
+
+### Crear un producto
+POST http://localhost:3000/productos
+Content-Type: application/json
+
+{
+  "categoria_id": 1,
+  "nombre": "Tostado queso y tomate",
+  "tipo": "simple"
+}
+
+### Obtener un producto por id
+GET http://localhost:3000/productos/1
+
+### Actualizar un producto
+PUT http://localhost:3000/productos/1
+Content-Type: application/json
+
+{
+  "categoria_id": 1,
+  "nombre": "Helado 1/4 kg (editado)",
+  "tipo": "simple"
+}
+
+### Desactivar (soft-delete) un producto
+DELETE http://localhost:3000/productos/6
