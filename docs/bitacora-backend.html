@@ -1,0 +1,682 @@
+<title>Backend Kainos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F1F4F6;
+    --surface: #FFFFFF;
+    --surface-2: #E8EDF1;
+    --ink: #1B2430;
+    --ink-muted: #5B6A78;
+    --border: #D9E1E7;
+    --accent: #2566A8;
+    --accent-ink: #164170;
+    --accent-soft: #E1EDF7;
+    --coral: #C15A34;
+    --coral-soft: #F6E2D8;
+    --code-bg: #141C22;
+    --code-tab: #1C2730;
+    --code-ink: #DCE6EC;
+    --code-muted: #77899A;
+    --code-accent: #6FBFE3;
+    --shadow: 0 1px 2px rgba(18, 28, 38, 0.06), 0 8px 24px rgba(18, 28, 38, 0.05);
+    --font-display: "Fraunces", Georgia, "Iowan Old Style", serif;
+    --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", "Consolas", "SFMono-Regular", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1419;
+      --surface: #171F26;
+      --surface-2: #1E2730;
+      --ink: #E5EBEF;
+      --ink-muted: #8FA0AF;
+      --border: #28333D;
+      --accent: #5FAEE8;
+      --accent-ink: #BFE1FA;
+      --accent-soft: #162534;
+      --coral: #E88A5F;
+      --coral-soft: #3B2620;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0F1419;
+    --surface: #171F26;
+    --surface-2: #1E2730;
+    --ink: #E5EBEF;
+    --ink-muted: #8FA0AF;
+    --border: #28333D;
+    --accent: #5FAEE8;
+    --accent-ink: #BFE1FA;
+    --accent-soft: #162534;
+    --coral: #E88A5F;
+    --coral-soft: #3B2620;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 56px 20px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  code, .mono { font-family: var(--font-mono); }
+
+  /* ---------- masthead ---------- */
+  .masthead { display: flex; flex-direction: column; gap: 10px; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+
+  .masthead h1 {
+    font-size: clamp(2.1rem, 5vw, 2.7rem);
+    font-weight: 600;
+    font-optical-sizing: auto;
+  }
+
+  .lede {
+    max-width: 62ch;
+    color: var(--ink-muted);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .updated {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    margin: 4px 0 0;
+  }
+
+  .updated .tabular { font-variant-numeric: tabular-nums; color: var(--ink); }
+
+  /* ---------- roadmap ---------- */
+  .roadmap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px clamp(16px, 4vw, 28px);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  .roadmap-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+
+  .roadmap-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 14.5px;
+  }
+
+  .roadmap-item .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .roadmap-item.done { color: var(--ink); }
+  .roadmap-item.done .dot { background: var(--accent); border-color: var(--accent); }
+  .roadmap-item:not(.done) { color: var(--ink-muted); }
+
+  .roadmap-item .step-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-muted);
+    min-width: 18px;
+  }
+
+  /* ---------- log / sessions ---------- */
+  .log { display: flex; flex-direction: column; gap: 40px; }
+
+  .session {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 8px 24px;
+  }
+
+  .session-marker {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    padding-top: 4px;
+  }
+
+  .session-date { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-muted); }
+  .session-num { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; color: var(--accent); }
+
+  .session-entries { display: flex; flex-direction: column; gap: 20px; border-left: 1px solid var(--border); padding-left: 24px; }
+
+  .entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--ink-muted);
+    border-radius: 10px;
+    padding: 20px clamp(16px, 4vw, 26px);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .entry--howto { border-left-color: var(--accent); }
+  .entry--decision { border-left-color: var(--coral); }
+
+  .entry-kind {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0;
+    color: var(--ink-muted);
+  }
+
+  .entry--howto .entry-kind { color: var(--accent-ink); }
+  .entry--decision .entry-kind { color: var(--coral); }
+
+  .entry h3 { font-size: 1.2rem; font-weight: 600; }
+
+  .entry p { margin: 0; max-width: 65ch; }
+
+  .entry-note {
+    background: var(--surface-2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14.5px;
+    color: var(--ink-muted);
+  }
+
+  .entry-note strong { color: var(--ink); font-weight: 600; }
+
+  .decision-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .option {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--ink-muted);
+  }
+
+  .option-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-bottom: 6px;
+  }
+
+  .option.chosen { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+  .option.chosen .option-tag { background: var(--accent); color: var(--surface); }
+  .option:not(.chosen) .option-tag { background: var(--surface-2); color: var(--ink-muted); }
+
+  .verdict {
+    font-size: 14.5px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--coral-soft);
+    color: var(--ink);
+  }
+
+  .verdict strong { color: var(--coral); }
+
+  /* ---------- code blocks ---------- */
+  .code-block { border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+
+  .code-block__tab {
+    background: var(--code-tab);
+    color: var(--code-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+  }
+
+  .code-block pre { margin: 0; background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; overflow-x: auto; }
+  .code-block code { font-size: 13.5px; line-height: 1.6; white-space: pre; }
+
+  ul.tight { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+  ul.tight li::marker { color: var(--ink-muted); }
+
+  .cmd-steps { display: flex; flex-direction: column; gap: 14px; }
+  .cmd-step { display: flex; flex-direction: column; gap: 6px; }
+  .cmd-step code.mono.line {
+    display: block;
+    background: var(--code-bg);
+    color: var(--code-accent);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    overflow-x: auto;
+  }
+  .cmd-step p { color: var(--ink-muted); font-size: 14px; max-width: 65ch; }
+
+  /* ---------- colophon ---------- */
+  .colophon { border-top: 1px solid var(--border); padding-top: 20px; font-size: 13.5px; color: var(--ink-muted); }
+  .colophon code { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; color: var(--ink); }
+
+  @media (max-width: 640px) {
+    .session { grid-template-columns: 1fr; }
+    .session-marker { position: static; flex-direction: row; align-items: baseline; gap: 8px; }
+    .session-entries { border-left: none; padding-left: 0; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .entry { transition: box-shadow 0.15s ease; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">Kainos · Backend</p>
+    <h1>Backend Kainos</h1>
+    <p class="lede">Bitácora aparte para todo lo de Node.js, Express y el código del servidor — instalación, decisiones de herramientas y los comandos que vamos corriendo, con qué hace cada uno. La de SQL sigue siendo otra, en <code>docs/bitacora.html</code>.</p>
+    <p class="updated">Última actualización: <span class="tabular">8 oct 2026</span> · Sesión 2</p>
+  </header>
+
+  <section class="roadmap" aria-label="Hoja de ruta del backend">
+    <p class="section-label">Hoja de ruta</p>
+    <ol class="roadmap-list">
+      <li class="roadmap-item done"><span class="step-num">01</span><span class="dot"></span>Node.js y npm instalados</li>
+      <li class="roadmap-item done"><span class="step-num">02</span><span class="dot"></span>pnpm instalado</li>
+      <li class="roadmap-item done"><span class="step-num">03</span><span class="dot"></span>Carpeta del proyecto backend</li>
+      <li class="roadmap-item done"><span class="step-num">04</span><span class="dot"></span><code class="mono">package.json</code> inicial</li>
+      <li class="roadmap-item done"><span class="step-num">05</span><span class="dot"></span>Express instalado y funcionando ("hola mundo")</li>
+      <li class="roadmap-item done"><span class="step-num">06</span><span class="dot"></span>Conexión a PostgreSQL desde Node</li>
+      <li class="roadmap-item done"><span class="step-num">07</span><span class="dot"></span>Estructura en capas (rutas / controladores / servicios / acceso a datos)</li>
+      <li class="roadmap-item"><span class="step-num">08</span><span class="dot"></span>Primera rebanada: CRUD de productos con precios</li>
+      <li class="roadmap-item"><span class="step-num">09</span><span class="dot"></span>Validación de entrada con zod</li>
+      <li class="roadmap-item"><span class="step-num">10</span><span class="dot"></span>Manejo de errores centralizado</li>
+    </ol>
+  </section>
+
+  <main class="log">
+    <div class="session">
+      <div class="session-marker">
+        <span class="session-date">7 oct 2026</span>
+        <span class="session-num">Sesión 1</span>
+      </div>
+
+      <div class="session-entries">
+
+        <article class="entry entry--decision">
+          <p class="entry-kind">Decisión de diseño</p>
+          <h3>JavaScript plano, no TypeScript — por ahora</h3>
+          <div class="decision-options">
+            <div class="option chosen">
+              <span class="option-tag">Elegida</span>
+              <p><strong>JavaScript plano</strong> — sin paso de compilación ni configuración extra mientras se aprenden las bases de Node.</p>
+            </div>
+            <div class="option">
+              <span class="option-tag">Para después</span>
+              <p><strong>TypeScript</strong> — tipos que avisan errores antes de correr, a cambio de <code class="mono">tsconfig</code> y un paso de compilación.</p>
+            </div>
+          </div>
+          <p class="verdict"><strong>Migración futura:</strong> no es una reescritura. Se instala <code class="mono">typescript</code> + paquetes <code class="mono">@types/...</code>, se renombran los archivos a <code class="mono">.ts</code>, y se van agregando tipos de a poco — un archivo <code class="mono">.ts</code> sin anotaciones sigue compilando igual. La única fricción real: algunas librerías viejas no traen tipos propios y hay que buscarles el paquete <code class="mono">@types</code> correspondiente.</p>
+        </article>
+
+        <article class="entry entry--decision">
+          <p class="entry-kind">Decisión de diseño</p>
+          <h3>npm para instalar, pnpm para el proyecto</h3>
+          <p><code class="mono">npm</code> viene incluido con Node, sin pasos extra — se usó para instalar <code class="mono">pnpm</code> de forma global (<code class="mono">npm install -g pnpm</code>). De acá en adelante, el proyecto en sí se maneja con <code class="mono">pnpm</code>: más rápido y no duplica paquetes entre proyectos distintos en el disco.</p>
+        </article>
+
+        <article class="entry entry--decision">
+          <p class="entry-kind">Decisión de diseño</p>
+          <h3>Express, no Fastify</h3>
+          <p>Los dos resuelven lo mismo (manejar las rutas HTTP del servidor). Express es el más viejo y el más usado — la mayoría de tutoriales y respuestas de la comunidad son sobre Express, lo cual importa más que la velocidad mientras se está aprendiendo de cero.</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Instalar Node.js, npm y pnpm en Windows</h3>
+          <div class="cmd-steps">
+            <div class="cmd-step">
+              <code class="mono line">winget install --id OpenJS.NodeJS.LTS -e</code>
+              <p>Descarga el instalador oficial de nodejs.org y lo corre. Instala Node y, de yapa, <code class="mono">npm</code> — vienen siempre juntos en el mismo paquete. También agrega los ejecutables al <code class="mono">PATH</code> de Windows.</p>
+            </div>
+            <div class="cmd-step">
+              <code class="mono line">node --version</code>
+              <code class="mono line">npm --version</code>
+              <p>Confirman la instalación. Dato de color: una terminal que ya estaba abierta <em>antes</em> de instalar no se entera del cambio de <code class="mono">PATH</code> sola — hay que abrir una nueva (o refrescar la variable a mano, que es lo que hubo que hacer en esta sesión).</p>
+            </div>
+            <div class="cmd-step">
+              <code class="mono line">npm install -g pnpm</code>
+              <p>Le pide a <code class="mono">npm</code> que traiga el paquete <code class="mono">pnpm</code> del repositorio público y lo instale <strong>global</strong> — disponible como comando en cualquier carpeta, no solo dentro de un proyecto.</p>
+            </div>
+          </div>
+          <p class="entry-note"><strong>Nota de seguridad:</strong> <code class="mono">pnpm</code> trae un script propio que corre automáticamente al instalarse. <code class="mono">npm</code> tiene una protección que bloquea por defecto que un paquete corra scripts arbitrarios durante la instalación — defensa contra paquetes maliciosos que aprovechen ese momento. Se autorizó puntualmente con <code class="mono">npm install -g --allow-scripts=pnpm pnpm</code>, porque <code class="mono">pnpm</code> es confiable.</p>
+          <p>Resultado: Node v24.19.0 (LTS), npm 11.17.0, pnpm 12.10.1.</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Carpeta del proyecto y primera dependencia</h3>
+          <div class="cmd-steps">
+            <div class="cmd-step">
+              <code class="mono line">mkdir backend
+cd backend</code>
+              <p>Carpeta separada del resto del proyecto — al lado, más adelante, va a vivir <code class="mono">frontend</code>.</p>
+            </div>
+            <div class="cmd-step">
+              <code class="mono line">pnpm init</code>
+              <p>Crea <code class="mono">package.json</code>, el documento de identidad del proyecto: nombre, versión, y la lista de dependencias que se va llenando sola. A diferencia de <code class="mono">npm init</code>, no hace preguntas — escribe valores por defecto directo.</p>
+            </div>
+            <div class="cmd-step">
+              <code class="mono line">pnpm add express</code>
+              <p>Descarga Express y lo agrega a <code class="mono">package.json</code>. De paso crea <code class="mono">node_modules</code> (el código real de la librería, nunca se edita a mano ni se sube a git) y <code class="mono">pnpm-lock.yaml</code> (fija la versión exacta instalada de cada paquete).</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>¿Por qué no usamos Vite acá?</h3>
+          <p>Vite es una herramienta de <strong>frontend</strong>: sirve y empaqueta código que corre en el navegador (compila JSX, da recarga rápida, arma el paquete final). Un backend con Express es JavaScript corriendo directo en Node, sin pasar por un navegador — no hay nada que empaquetar, se escribe un archivo y se corre con <code class="mono">node archivo.js</code> tal cual. Vite ya está anotado en el <code>CONTEXTO.md</code> para más adelante, cuando llegue la parte de React.</p>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="session">
+      <div class="session-marker">
+        <span class="session-date">8 oct 2026</span>
+        <span class="session-num">Sesión 2</span>
+      </div>
+
+      <div class="session-entries">
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Primer servidor: <code class="mono">index.js</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">js</div>
+            <pre><code>import express from 'express';
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.send('Kainos backend funcionando');
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+});</code></pre>
+          </div>
+          <p>Scripts en <code class="mono">package.json</code>: <code class="mono">"start": "node index.js"</code> y <code class="mono">"dev": "node --watch index.js"</code>. Corrido con <code class="mono">pnpm dev</code>, responde en <code class="mono">http://localhost:3000</code>.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3><code class="mono">req</code> y <code class="mono">res</code> son solo nombres — lo que importa es la posición</h3>
+          <p>Express llama a la función de la ruta pasándole dos objetos en orden fijo: primero el pedido entrante, segundo el objeto para construir la respuesta. <code class="mono">req</code>/<code class="mono">res</code> son la convención que usa todo el mundo, pero no son especiales — <code class="mono">(solicitud, respuesta) => respuesta.send(...)</code> funciona idéntico. Lo que rompe todo es invertir el <strong>orden</strong> de los parámetros, no el nombre.</p>
+        </article>
+
+        <article class="entry entry--decision">
+          <p class="entry-kind">Decisión de diseño</p>
+          <h3><code class="mono">node --watch</code> en vez de <code class="mono">nodemon</code></h3>
+          <div class="decision-options">
+            <div class="option chosen">
+              <span class="option-tag">Elegida</span>
+              <p><strong>node --watch</strong> — reinicia el proceso al guardar un archivo. Viene incluido en Node (estable desde la v20), cero dependencias nuevas.</p>
+            </div>
+            <div class="option">
+              <span class="option-tag">Descartada</span>
+              <p><strong>nodemon</strong> — paquete de terceros, más configurable (ignorar carpetas, reinicio manual), pero innecesario para un server chico.</p>
+            </div>
+          </div>
+          <p class="verdict"><strong>Por qué:</strong> mismo criterio que <code class="mono">dependencies</code> vs <code class="mono">devDependencies</code> — cuanto menos haya que instalar y mantener sin una razón concreta, mejor.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3><code class="mono">process.env.PORT || 3000</code>: primera variable de entorno</h3>
+          <p><code class="mono">process.env</code> es un objeto global de Node con las variables de entorno — valores definidos por fuera del código, en el sistema operativo o por quien aloja la app. <code class="mono">process.env.PORT</code> vale <code class="mono">undefined</code> si nadie definió esa variable (como en tu máquina, ahora). El <code class="mono">|| 3000</code> es el operador "o": si lo de la izquierda es falsy (<code class="mono">undefined</code>, acá), usa <code class="mono">3000</code> como respaldo.</p>
+          <p>Por qué importa: la mayoría de los servicios de hosting (Render, Railway, Heroku) le asignan a tu app un puerto distinto cada vez mediante esa misma variable, y tu código tiene que escuchar ahí, no en uno fijo. Este patrón hace que el mismo código funcione sin cambios en tu máquina (usa 3000) y en producción (usa lo que el hosting le pase).</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Conectar Node a PostgreSQL: <code class="mono">pg</code>, <code class="mono">.env</code> y <code class="mono">Pool</code></h3>
+          <div class="cmd-steps">
+            <div class="cmd-step">
+              <code class="mono line">pnpm add pg</code>
+              <p>Driver oficial de PostgreSQL para Node — manda SQL y devuelve filas como objetos de JS. El mismo trabajo que hace <code class="mono">psql</code> por consola, pero para que lo use el código.</p>
+            </div>
+          </div>
+          <div class="code-block">
+            <div class="code-block__tab">.env</div>
+            <pre><code>PGHOST=localhost
+PGPORT=5432
+PGDATABASE=kainos_dev
+PGUSER=postgres
+PGPASSWORD=&lt;contraseña real&gt;</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-block__tab">.gitignore</div>
+            <pre><code>node_modules
+.env</code></pre>
+          </div>
+          <p>El <code class="mono">.gitignore</code> se escribió antes de tener git siquiera inicializado — así el primer commit, el día que se haga, nunca corre riesgo de subir una contraseña.</p>
+          <div class="code-block">
+            <div class="code-block__tab">db.js</div>
+            <pre><code>import { Pool } from 'pg';
+
+export const pool = new Pool({
+  host: process.env.PGHOST,
+  port: process.env.PGPORT,
+  database: process.env.PGDATABASE,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+});</code></pre>
+          </div>
+          <p><code class="mono">Pool</code> en vez de una sola conexión: mantiene varias conexiones abiertas a Postgres y las reparte entre pedidos — un servidor real atiende varios pedidos a la vez, y no conviene que se hagan cola esperando una única conexión.</p>
+          <p>El script <code class="mono">"dev"</code> pasó a <code class="mono">"node --watch --env-file=.env index.js"</code> — la bandera <code class="mono">--env-file</code> es, otra vez, una función nativa de Node (no el paquete <code class="mono">dotenv</code> que se ve en la mayoría de los tutoriales): mismo criterio que con <code class="mono">--watch</code>, evitar una dependencia que Node ya resuelve solo.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3><code class="mono">async</code>/<code class="mono">await</code>: esperar sin bloquear</h3>
+          <div class="code-block">
+            <div class="code-block__tab">js</div>
+            <pre><code>app.get('/test-db', async (req, res) => {
+  const result = await pool.query('SELECT NOW()');
+  res.json(result.rows[0]);
+});</code></pre>
+          </div>
+          <p>Una consulta a la base tarda (va por red hasta Postgres y vuelve) — <code class="mono">pool.query(...)</code> no devuelve el resultado al instante, devuelve una <em>promesa</em> de que el resultado va a llegar. <code class="mono">await</code> dice "pausá esta función hasta que esa promesa se resuelva, y seguí con el valor real" — por eso la función de la ruta se marca <code class="mono">async</code>: toda función que usa <code class="mono">await</code> adentro tiene que estar marcada así.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3><code class="mono">res.json</code> vs <code class="mono">res.send</code>, y por qué <code class="mono">result.rows[0]</code></h3>
+          <p><code class="mono">res.json(objeto)</code> convierte el objeto a texto JSON y le pone a la respuesta el header <code class="mono">Content-Type: application/json</code> — así quien la reciba (el navegador, después el frontend React) sabe que tiene que interpretarla como datos, no como HTML. <code class="mono">res.send</code> manda lo que le pases tal cual y Express adivina el tipo.</p>
+          <p><code class="mono">result.rows</code> es <strong>siempre un arreglo</strong>, nunca una fila pelada — porque <code class="mono">pg</code> no sabe de antemano si la consulta va a devolver 0, 1 o 1000 filas, así que uniformiza todo como lista. <code class="mono">SELECT NOW()</code> devuelve una sola fila, entonces <code class="mono">result.rows</code> queda como <code class="mono">[ { now: ... } ]</code> — un arreglo con un único objeto adentro. <code class="mono">result.rows[0]</code> agarra ese primer elemento, en vez de devolver el arreglo completo con los corchetes.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Estructura en capas: cuatro responsabilidades separadas</h3>
+          <div class="code-block">
+            <div class="code-block__tab">estructura</div>
+            <pre><code>src/
+  routes/       → qué URL existe, qué método la atiende
+  controllers/  → traduce HTTP ↔ negocio, nunca sabe de SQL
+  services/     → reglas de negocio, nunca sabe de HTTP
+  data/         → la única capa que toca pool.query(), nunca sabe de HTTP</code></pre>
+          </div>
+          <p>La idea de separar: si mañana cambia Express por otra cosa, o Postgres por otro motor, se reescribe una sola capa. Y para debuggear, el tipo de problema te dice directo en qué capa mirar — un dato mal validado es <code class="mono">services</code>, una consulta que explota es <code class="mono">data</code>, un código HTTP mal puesto es <code class="mono">controllers</code>.</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Primera rebanada, con las cuatro capas: <code class="mono">producto</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">src/data/productos.data.js</div>
+            <pre><code>import { pool } from '../../db.js';
+
+export async function obtenerTodos() {
+  const result = await pool.query(`
+    SELECT p.id, p.nombre, p.tipo, p.activo, c.nombre AS categoria
+    FROM producto p
+    JOIN categoria c ON p.categoria_id = c.id
+    WHERE p.activo = true
+    ORDER BY p.id
+  `);
+  return result.rows;
+}
+
+export async function crear({ categoria_id, nombre, tipo }) {
+  const result = await pool.query(
+    'INSERT INTO producto (categoria_id, nombre, tipo) VALUES ($1, $2, $3) RETURNING *',
+    [categoria_id, nombre, tipo]
+  );
+  return result.rows[0];
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-block__tab">src/services/productos.service.js</div>
+            <pre><code>import * as productosData from '../data/productos.data.js';
+import { AppError } from '../utils/AppError.js';
+
+export async function listar() {
+  return productosData.obtenerTodos();
+}
+
+export async function crear(datos) {
+  if (!datos.nombre || !datos.categoria_id || !datos.tipo) {
+    throw new AppError('Faltan campos obligatorios', 400);
+  }
+  return productosData.crear(datos);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-block__tab">src/controllers/productos.controller.js</div>
+            <pre><code>import * as productosService from '../services/productos.service.js';
+
+export async function listar(req, res, next) {
+  try {
+    const productos = await productosService.listar();
+    res.json(productos);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function crear(req, res, next) {
+  try {
+    const nuevoProducto = await productosService.crear(req.body);
+    res.status(201).json(nuevoProducto);
+  } catch (err) {
+    next(err);
+  }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-block__tab">src/routes/productos.routes.js</div>
+            <pre><code>import { Router } from 'express';
+import * as productosController from '../controllers/productos.controller.js';
+
+export const productosRouter = Router();
+
+productosRouter.get('/', productosController.listar);
+productosRouter.post('/', productosController.crear);</code></pre>
+          </div>
+          <p><code class="mono">Router()</code> es una mini-app de Express que agrupa rutas relacionadas; se monta en <code class="mono">index.js</code> bajo un prefijo (<code class="mono">app.use('/productos', productosRouter)</code>). Probado: <code class="mono">GET /productos</code> devuelve los 4 activos con su categoría; <code class="mono">POST /productos</code> creó el id 5 y respondió <code class="mono">201</code>.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Consultas parametrizadas: por qué nunca armar el SQL a mano</h3>
+          <p><code class="mono">$1, $2, $3</code> en el <code class="mono">INSERT</code> de <code class="mono">productos.data.js</code> son <strong>consultas parametrizadas</strong>. Nunca hay que meter un valor que viene de afuera (del <code class="mono">req.body</code>) directo dentro del texto de la consulta armando un string a mano — si alguien manda como "nombre" algo tipo <code class="mono">'); DROP TABLE producto; --</code>, con concatenación de texto ese string pasaría a ser parte del SQL ejecutado: <strong>inyección SQL</strong>. Con los parámetros aparte, <code class="mono">pg</code> le entrega el valor a Postgres como dato puro, nunca como código, sea lo que sea que contenga.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Manejo de errores centralizado</h3>
+          <div class="code-block">
+            <div class="code-block__tab">src/utils/AppError.js</div>
+            <pre><code>export class AppError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-block__tab">src/middleware/errorHandler.js</div>
+            <pre><code>export function errorHandler(err, req, res, next) {
+  const statusCode = err.statusCode || 500;
+  console.error(err);
+  res.status(statusCode).json({ error: err.message });
+}</code></pre>
+          </div>
+          <p>Express reconoce un middleware con <strong>exactamente 4 parámetros</strong> (<code class="mono">err, req, res, next</code>) como manejador de errores — solo corre cuando algo le pasa un error con <code class="mono">next(err)</code>. Se registra una sola vez, al final de <code class="mono">index.js</code>, y centraliza en un solo lugar cómo se convierte cualquier error en respuesta HTTP. El patrón en cada controller es siempre <code class="mono">try { ... } catch (err) { next(err) }</code> — nunca se deja un error sin controlar.</p>
+          <p><code class="mono">app.use(express.json())</code> también se agregó en <code class="mono">index.js</code>, antes de las rutas — sin esto, <code class="mono">req.body</code> queda <code class="mono">undefined</code> en un <code class="mono">POST</code>, porque Express no interpreta el JSON entrante solo.</p>
+        </article>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="colophon">
+    <p>La bitácora de modelado y SQL de la base de datos vive aparte, en <code>docs/bitacora.html</code>. Las decisiones de fondo del proyecto están en <code>CONTEXTO.md</code>, en la raíz.</p>
+  </footer>
+
+</div>

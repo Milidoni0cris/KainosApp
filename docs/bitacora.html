@@ -1,0 +1,793 @@
+<title>Bitácora Kainos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F2F5F0;
+    --surface: #FFFFFF;
+    --surface-2: #E9EFE7;
+    --ink: #1E271F;
+    --ink-muted: #5B6B5D;
+    --border: #DAE3D8;
+    --accent: #1F7A5C;
+    --accent-ink: #0E4E38;
+    --accent-soft: #E0F1E6;
+    --coral: #C15A34;
+    --coral-soft: #F6E2D8;
+    --code-bg: #16201A;
+    --code-tab: #1F2B23;
+    --code-ink: #D9E7DE;
+    --code-muted: #7E9587;
+    --code-accent: #6FE3B4;
+    --shadow: 0 1px 2px rgba(20, 30, 22, 0.06), 0 8px 24px rgba(20, 30, 22, 0.05);
+    --font-display: "Fraunces", Georgia, "Iowan Old Style", serif;
+    --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", "Consolas", "SFMono-Regular", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10140E;
+      --surface: #182018;
+      --surface-2: #202A21;
+      --ink: #E6EDE4;
+      --ink-muted: #93A692;
+      --border: #2A342A;
+      --accent: #55DBA8;
+      --accent-ink: #B7F3D8;
+      --accent-soft: #17352A;
+      --coral: #E88A5F;
+      --coral-soft: #3B2620;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #10140E;
+    --surface: #182018;
+    --surface-2: #202A21;
+    --ink: #E6EDE4;
+    --ink-muted: #93A692;
+    --border: #2A342A;
+    --accent: #55DBA8;
+    --accent-ink: #B7F3D8;
+    --accent-soft: #17352A;
+    --coral: #E88A5F;
+    --coral-soft: #3B2620;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 56px 20px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  code, .mono { font-family: var(--font-mono); }
+
+  /* ---------- masthead ---------- */
+  .masthead { display: flex; flex-direction: column; gap: 10px; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+
+  .masthead h1 {
+    font-size: clamp(2.1rem, 5vw, 2.7rem);
+    font-weight: 600;
+    font-optical-sizing: auto;
+  }
+
+  .lede {
+    max-width: 62ch;
+    color: var(--ink-muted);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .updated {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    margin: 4px 0 0;
+  }
+
+  .updated .tabular { font-variant-numeric: tabular-nums; color: var(--ink); }
+
+  /* ---------- progress ---------- */
+  .progress {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px clamp(16px, 4vw, 28px);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  .progress-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 20px;
+  }
+
+  .progress-group h3 {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    margin-bottom: 10px;
+  }
+
+  .pill-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+
+  .pill .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .pill.done { color: var(--ink); }
+  .pill.done .dot { background: var(--accent); border-color: var(--accent); }
+
+  /* ---------- log / sessions ---------- */
+  .log { display: flex; flex-direction: column; gap: 40px; }
+
+  .session {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 8px 24px;
+  }
+
+  .session-marker {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    padding-top: 4px;
+  }
+
+  .session-date { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-muted); }
+  .session-num { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; color: var(--accent); }
+
+  .session-entries { display: flex; flex-direction: column; gap: 20px; border-left: 1px solid var(--border); padding-left: 24px; }
+
+  .entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--ink-muted);
+    border-radius: 10px;
+    padding: 20px clamp(16px, 4vw, 26px);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .entry--howto { border-left-color: var(--accent); }
+  .entry--decision { border-left-color: var(--coral); }
+
+  .entry-kind {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0;
+    color: var(--ink-muted);
+  }
+
+  .entry--howto .entry-kind { color: var(--accent-ink); }
+  .entry--decision .entry-kind { color: var(--coral); }
+
+  .entry h3 { font-size: 1.2rem; font-weight: 600; }
+
+  .entry p { margin: 0; max-width: 65ch; }
+
+  .entry-note {
+    background: var(--surface-2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14.5px;
+    color: var(--ink-muted);
+  }
+
+  .entry-note strong { color: var(--ink); font-weight: 600; }
+
+  .decision-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .option {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--ink-muted);
+  }
+
+  .option-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-bottom: 6px;
+  }
+
+  .option.chosen { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+  .option.chosen .option-tag { background: var(--accent); color: var(--surface); }
+  .option:not(.chosen) .option-tag { background: var(--surface-2); color: var(--ink-muted); }
+
+  .verdict {
+    font-size: 14.5px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--coral-soft);
+    color: var(--ink);
+  }
+
+  .verdict strong { color: var(--coral); }
+
+  /* ---------- code blocks ---------- */
+  .code-block {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .code-block__tab {
+    background: var(--code-tab);
+    color: var(--code-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+  }
+
+  .code-block pre {
+    margin: 0;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 14px 16px;
+    overflow-x: auto;
+  }
+
+  .code-block code {
+    font-size: 13.5px;
+    line-height: 1.6;
+    white-space: pre;
+  }
+
+  .code-block .k { color: var(--code-accent); }
+  .code-block .c { color: var(--code-muted); }
+
+  ul.tight { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+  ul.tight li::marker { color: var(--ink-muted); }
+
+  .field-note {
+    display: grid;
+    grid-template-columns: minmax(120px, 160px) 1fr;
+    gap: 4px 14px;
+    font-size: 14.5px;
+  }
+  .field-note dt { font-family: var(--font-mono); color: var(--accent-ink); font-size: 13px; }
+  .field-note dd { margin: 0 0 10px; color: var(--ink-muted); }
+
+  /* ---------- colophon ---------- */
+  .colophon {
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    font-size: 13.5px;
+    color: var(--ink-muted);
+  }
+  .colophon code { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; color: var(--ink); }
+
+  @media (max-width: 640px) {
+    .session { grid-template-columns: 1fr; }
+    .session-marker { position: static; flex-direction: row; align-items: baseline; gap: 8px; }
+    .session-entries { border-left: none; padding-left: 0; }
+    .field-note { grid-template-columns: 1fr; }
+    .field-note dt { margin-top: 4px; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .entry { transition: box-shadow 0.15s ease; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">Kainos · Base de datos</p>
+    <h1>Bitácora Kainos</h1>
+    <p class="lede">Registro de lo que vamos decidiendo, escribiendo y entendiendo en PostgreSQL para el sistema de la heladería y cafetería de la familia. Se va completando sesión a sesión, a medida que avanzamos con el esquema a mano.</p>
+    <p class="updated">Última actualización: <span class="tabular">7 oct 2026</span> · Sesión 3</p>
+  </header>
+
+  <section class="progress" aria-label="Estado del esquema">
+    <p class="section-label">Estado del esquema — 19 tablas en total</p>
+    <div class="progress-groups">
+      <div class="progress-group">
+        <h3>Catálogo y precios</h3>
+        <ul class="pill-list">
+          <li class="pill done"><span class="dot"></span>categoria</li>
+          <li class="pill done"><span class="dot"></span>producto</li>
+          <li class="pill done"><span class="dot"></span>canal</li>
+          <li class="pill done"><span class="dot"></span>precio</li>
+          <li class="pill done"><span class="dot"></span>promo_componente</li>
+          <li class="pill done"><span class="dot"></span>adicional</li>
+          <li class="pill done"><span class="dot"></span>producto_adicional</li>
+          <li class="pill done"><span class="dot"></span>adicional_precio</li>
+        </ul>
+      </div>
+      <div class="progress-group">
+        <h3>Stock y compras</h3>
+        <ul class="pill-list">
+          <li class="pill done"><span class="dot"></span>insumo</li>
+          <li class="pill done"><span class="dot"></span>receta</li>
+          <li class="pill"><span class="dot"></span>movimiento_stock</li>
+          <li class="pill done"><span class="dot"></span>proveedor</li>
+          <li class="pill done"><span class="dot"></span>insumo_proveedor</li>
+          <li class="pill done"><span class="dot"></span>compra</li>
+          <li class="pill done"><span class="dot"></span>compra_item</li>
+        </ul>
+      </div>
+      <div class="progress-group">
+        <h3>Mesas y pedidos</h3>
+        <ul class="pill-list">
+          <li class="pill done"><span class="dot"></span>mesa</li>
+          <li class="pill done"><span class="dot"></span>pedido</li>
+          <li class="pill done"><span class="dot"></span>pedido_item</li>
+          <li class="pill done"><span class="dot"></span>pedido_item_adicional</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <main class="log">
+    <div class="session">
+      <div class="session-marker">
+        <span class="session-date">28 sep 2026</span>
+        <span class="session-num">Sesión 1</span>
+      </div>
+
+      <div class="session-entries">
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Instalar PostgreSQL y dejarlo corriendo</h3>
+          <p>Instalamos PostgreSQL 18 en Windows. El instalador trae en un solo paquete el servidor, la terminal <code class="mono">psql</code> y pgAdmin 4 — no hace falta sumar otro cliente aparte. Al terminar queda registrado un servicio de Windows (<code class="mono">postgresql-x64-18</code>) que arranca solo con el sistema: no hay un botón de "prender la base" para buscar cada vez.</p>
+          <div class="field-note">
+            <dt>Binarios y psql</dt>
+            <dd><code class="mono">C:\Program Files\PostgreSQL\18\bin</code></dd>
+            <dt>Datos reales</dt>
+            <dd><code class="mono">C:\Program Files\PostgreSQL\18\data</code> — nunca se edita a mano, todo pasa por comandos</dd>
+            <dt>Servicio</dt>
+            <dd><code class="mono">postgresql-x64-18</code>, arranca con Windows</dd>
+          </div>
+          <p class="entry-note"><strong>Nota:</strong> el primer intento fue con <code class="mono">winget</code>, que instala en silencio y no deja la contraseña del superusuario en ningún lado legible. Resetearla sin reinstalar hubiese requerido bajar temporalmente el método de autenticación del servidor — un cambio de seguridad que preferimos no automatizar. Se resolvió desinstalando y reinstalando de forma manual, eligiendo la contraseña en el propio instalador.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Servidor, cliente, y por qué el usuario es <code class="mono">postgres</code></h3>
+          <p>Un servidor es un proceso que queda escuchando pedidos por red y respondiéndolos; Postgres corre así, escuchando en el puerto 5432 sobre los archivos de <code class="mono">data</code>. <code class="mono">psql</code> y pgAdmin son clientes: abren una conexión y mandan SQL como texto, nunca tocan esos archivos directamente.</p>
+          <p><code class="mono">postgres</code> es el superusuario que crea el instalador — el equivalente a <code class="mono">root</code> a nivel base de datos. Sirve para este momento de aprender solo; una app real se conectaría con un usuario propio y permisos acotados, tarea que queda para la etapa de roles.</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Crear la base del proyecto</h3>
+          <div class="code-block">
+            <div class="code-block__tab">psql</div>
+            <pre><code>CREATE DATABASE kainos_dev;
+\c kainos_dev</code></pre>
+          </div>
+          <p>Meta-comandos de <code class="mono">psql</code> para moverse (no son SQL, el Query Tool de pgAdmin no los reconoce): <code class="mono">\l</code> lista bases, <code class="mono">\dt</code> lista tablas, <code class="mono">\d tabla</code> describe una tabla, <code class="mono">\q</code> sale.</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Primera tabla: <code class="mono">categoria</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>CREATE TABLE categoria (
+    id     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL
+);</code></pre>
+          </div>
+          <p>La más simple del modelo: un id autonumérico y un nombre. Sin dependencias, así que puede crearse antes que cualquier otra.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Anatomía de un <code class="mono">CREATE TABLE</code>: <code class="mono">producto</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>CREATE TABLE producto (
+    id           INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    categoria_id INTEGER NOT NULL REFERENCES categoria(id),
+    nombre       VARCHAR(100) NOT NULL,
+    tipo         VARCHAR(10) NOT NULL CHECK (tipo IN ('simple', 'promo')),
+    activo       BOOLEAN NOT NULL DEFAULT true
+);</code></pre>
+          </div>
+          <ul class="tight">
+            <li><strong>id</strong> — <code class="mono">GENERATED ALWAYS AS IDENTITY</code> reemplaza al viejo <code class="mono">SERIAL</code>: mismo autoincremento, pero impide pisar el valor a mano. <code class="mono">PRIMARY KEY</code> suma de una <code class="mono">NOT NULL</code> + <code class="mono">UNIQUE</code> + un índice.</li>
+            <li><strong>categoria_id</strong> — <code class="mono">REFERENCES</code> es la clave foránea: Postgres valida en cada <code class="mono">INSERT</code> que el valor exista del otro lado, y bloquea borrar una categoría todavía referenciada.</li>
+            <li><strong>nombre</strong> — <code class="mono">VARCHAR(100)</code>: en Postgres se guarda igual que <code class="mono">TEXT</code>, el largo es solo un tope de seguridad, no cambia el rendimiento.</li>
+            <li><strong>tipo</strong> — <code class="mono">CHECK (tipo IN (...))</code> funciona como un enum casero: solo permite esos dos valores exactos.</li>
+            <li><strong>activo</strong> — <code class="mono">DEFAULT true</code> completa el valor solo si el <code class="mono">INSERT</code> lo omite; es independiente de <code class="mono">NOT NULL</code>, que solo prohíbe un <code class="mono">NULL</code> explícito.</li>
+          </ul>
+        </article>
+
+        <article class="entry entry--decision">
+          <p class="entry-kind">Decisión de diseño</p>
+          <h3>¿Dónde va el sabor del helado?</h3>
+          <p>El pote entero de un sabor ya es un <code class="mono">INSUMO</code> aparte, medido en potes cerrados. Faltaba resolver si el sabor que pide el cliente aparece también como <code class="mono">PRODUCTO</code> distinto.</p>
+          <div class="decision-options">
+            <div class="option chosen">
+              <span class="option-tag">Elegida</span>
+              <p><strong>Opción A</strong> — <code class="mono">producto</code> distingue solo por tamaño ("Helado 1/4 kg"). El sabor no queda estructurado en el pedido.</p>
+            </div>
+            <div class="option">
+              <span class="option-tag">Descartada</span>
+              <p><strong>Opción B</strong> — una fila de producto por tamaño × sabor. Explota <code class="mono">precio</code> (tamaño × sabor × canal × vigencia).</p>
+            </div>
+          </div>
+          <p class="verdict"><strong>Por qué:</strong> el stock de potes no se descuenta por venta sino por apertura manual, así que "sabor más vendido" vía pedidos tampoco sería confiable del todo. Si hace falta esa analítica más adelante, se puede sumar <code class="mono">pedido_item_sabor</code> sin tocar catálogo ni precios.</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Cargar datos y mirarlos</h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>INSERT INTO categoria (nombre) VALUES
+    ('Helados'), ('Cafeteria'), ('Bebidas'), ('Comidas');
+
+INSERT INTO producto (categoria_id, nombre, tipo) VALUES
+    (1, 'Helado 1/4 kg', 'simple'),
+    (1, 'Helado 1/2 kg', 'simple');
+
+SELECT * FROM categoria;</code></pre>
+          </div>
+          <p>El <code class="mono">id</code> nunca se menciona en el <code class="mono">INSERT</code> — lo genera la <code class="mono">IDENTITY</code> sola. <code class="mono">activo</code> tampoco hace falta nombrarlo: queda en <code class="mono">true</code> por el <code class="mono">DEFAULT</code>.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>El primer <code class="mono">JOIN</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>SELECT p.nombre, p.tipo, c.nombre AS categoria
+FROM producto p
+JOIN categoria c ON p.categoria_id = c.id;</code></pre>
+          </div>
+          <p><code class="mono">JOIN</code> sin apellido es <code class="mono">INNER JOIN</code>: por cada fila de <code class="mono">producto</code> busca en <code class="mono">categoria</code> la fila cuyo <code class="mono">id</code> coincide con <code class="mono">categoria_id</code>, y las pega en una sola. <code class="mono">p</code> y <code class="mono">c</code> son alias de tabla — <code class="mono">FROM producto p</code> ya es la forma corta de <code class="mono">FROM producto AS p</code>, el <code class="mono">AS</code> es opcional.</p>
+          <p>Existe la forma vieja con coma (<code class="mono">FROM producto p, categoria c WHERE p.categoria_id = c.id</code>), pero mezcla la condición de relación con los filtros de negocio en el mismo <code class="mono">WHERE</code> — fácil de olvidar y terminar con un producto cartesiano. <code class="mono">JOIN ... ON</code> separa las dos cosas a propósito.</p>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="session">
+      <div class="session-marker">
+        <span class="session-date">29 sep 2026</span>
+        <span class="session-num">Sesión 2</span>
+      </div>
+
+      <div class="session-entries">
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>El patrón de vigencia en código: <code class="mono">canal</code> y <code class="mono">precio</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>CREATE TABLE canal (
+    id     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE precio (
+    id             INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    producto_id    INTEGER NOT NULL REFERENCES producto(id),
+    canal_id       INTEGER NOT NULL REFERENCES canal(id),
+    monto          NUMERIC(10,2) NOT NULL CHECK (monto > 0),
+    vigente_desde  DATE NOT NULL DEFAULT CURRENT_DATE,
+    vigente_hasta  DATE
+);</code></pre>
+          </div>
+          <ul class="tight">
+            <li><strong>monto</strong> es <code class="mono">NUMERIC(10,2)</code>, nunca <code class="mono">FLOAT</code>: la plata necesita precisión decimal exacta, un flotante binario redondea con error de centavos.</li>
+            <li><strong>vigente_hasta</strong> es la única columna sin <code class="mono">NOT NULL</code> a propósito — <code class="mono">NULL</code> ahí significa "vigente hoy", no "dato faltante".</li>
+            <li>Dos FK en la misma tabla (<code class="mono">producto_id</code>, <code class="mono">canal_id</code>) no tienen problema en convivir, cada una se valida por separado.</li>
+          </ul>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Primera consulta crítica: precio vigente hoy</h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>SELECT monto
+FROM precio
+WHERE producto_id = 3
+  AND canal_id = 3
+  AND vigente_desde <= CURRENT_DATE
+  AND (vigente_hasta IS NULL OR vigente_hasta >= CURRENT_DATE);</code></pre>
+          </div>
+          <p>El <code class="mono">OR vigente_hasta IS NULL</code> es imprescindible: en SQL, comparar cualquier cosa contra <code class="mono">NULL</code> (por ejemplo <code class="mono">vigente_hasta >= CURRENT_DATE</code> cuando es <code class="mono">NULL</code>) da <code class="mono">NULL</code>, ni verdadero ni falso — sin ese <code class="mono">OR</code>, las filas todavía vigentes quedarían afuera del resultado.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Relaciones muchos a muchos: <code class="mono">adicional</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>CREATE TABLE adicional (
+    id     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT true
+);
+
+CREATE TABLE producto_adicional (
+    producto_id  INTEGER NOT NULL REFERENCES producto(id),
+    adicional_id INTEGER NOT NULL REFERENCES adicional(id),
+    PRIMARY KEY (producto_id, adicional_id)
+);
+
+CREATE TABLE adicional_precio (
+    id            INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    adicional_id  INTEGER NOT NULL REFERENCES adicional(id),
+    canal_id      INTEGER NOT NULL REFERENCES canal(id),
+    monto         NUMERIC(10,2) NOT NULL CHECK (monto > 0),
+    vigente_desde DATE NOT NULL DEFAULT CURRENT_DATE,
+    vigente_hasta DATE
+);</code></pre>
+          </div>
+          <p>Un producto puede admitir varios adicionales, y un mismo adicional puede servir para varios productos — eso no se resuelve con una FK de un lado solo. <code class="mono">producto_adicional</code> es una <strong>tabla intermedia</strong>: no representa una cosa del negocio, solo la relación. Como cada combinación tiene que ser única, no lleva <code class="mono">id</code> propio — la <code class="mono">PRIMARY KEY (producto_id, adicional_id)</code> compuesta es la que impide duplicados. <code class="mono">adicional_precio</code> reutiliza el mismo patrón de vigencia que <code class="mono">precio</code>, ahora colgando de <code class="mono">adicional</code>.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Una tabla que se referencia a sí misma: <code class="mono">promo_componente</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>CREATE TABLE promo_componente (
+    promo_id      INTEGER NOT NULL REFERENCES producto(id),
+    componente_id INTEGER NOT NULL REFERENCES producto(id),
+    cantidad      INTEGER NOT NULL CHECK (cantidad > 0),
+    PRIMARY KEY (promo_id, componente_id)
+);</code></pre>
+          </div>
+          <p>Una promo es una fila de <code class="mono">producto</code> más (con <code class="mono">tipo = 'promo'</code>), distinta de las filas que la componen. Ejemplo con un combo de café + jugo + tostada: la promo entra como un <code class="mono">producto</code> nuevo (id propio, ej. 10), <code class="mono">promo_componente</code> guarda tres filas <code class="mono">(10, café), (10, jugo), (10, tostada)</code>, y la promo tiene su propio precio en <code class="mono">precio</code> — no la suma de las partes. Al venderla, <code class="mono">PEDIDO_ITEM</code> lleva una sola línea (la promo); para descontar stock se recorre <code class="mono">promo_componente</code> y de ahí la <code class="mono">RECETA</code> de cada parte.</p>
+          <p class="entry-note"><strong>Punto flojo:</strong> ninguna <code class="mono">CHECK</code> impide cargar un <code class="mono">promo_id</code> que en realidad sea <code class="mono">tipo = 'simple'</code>, o un componente que sea otra promo — Postgres no permite subconsultas dentro de un <code class="mono">CHECK</code>. Queda como disciplina de carga por ahora; se podría reforzar más adelante con un trigger.</p>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="session">
+      <div class="session-marker">
+        <span class="session-date">7 oct 2026</span>
+        <span class="session-num">Sesión 3</span>
+      </div>
+
+      <div class="session-entries">
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Arranca el bloque de stock: <code class="mono">insumo</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>CREATE TABLE insumo (
+    id           INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre       VARCHAR(100) NOT NULL,
+    tipo         VARCHAR(15) NOT NULL CHECK (tipo IN ('pote', 'bebida', 'comida', 'descartable')),
+    unidad       VARCHAR(20) NOT NULL,
+    stock_actual NUMERIC(10,2) NOT NULL DEFAULT 0,
+    activo       BOOLEAN NOT NULL DEFAULT true
+);</code></pre>
+          </div>
+          <p><code class="mono">unidad</code> es texto libre ("pote", "unidad", "kg") — a diferencia de <code class="mono">tipo</code>, la lista de unidades posibles es abierta, no una regla de negocio para validar con <code class="mono">CHECK</code>.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3><code class="mono">stock_actual</code> es un valor cacheado, no la verdad</h3>
+          <p>La fuente real de verdad del stock va a ser <code class="mono">MOVIMIENTO_STOCK</code> (filas inmutables, cantidad con signo) — el stock real de un insumo es, en rigor, la suma de sus movimientos. <code class="mono">stock_actual</code> es una copia de ese resultado, guardada aparte para no tener que sumar todo el historial cada vez que alguien quiere ver cuánto queda de algo.</p>
+          <p class="entry-note"><strong>Riesgo:</strong> si un movimiento se inserta sin actualizar <code class="mono">stock_actual</code> en la misma transacción, los dos números se desincronizan. Se resuelve cuando ambas escrituras viven juntas, nunca por separado.</p>
+        </article>
+
+        <article class="entry entry--decision">
+          <p class="entry-kind">Decisión de diseño</p>
+          <h3>Conteo físico semanal, sin tabla nueva</h3>
+          <p>La idea de llevar un "stock real" contado a mano cada semana, además del calculado, no necesita una columna aparte — se resuelve con un movimiento más del libro mayor.</p>
+          <p class="verdict"><strong>Cómo:</strong> cuando lo contado y <code class="mono">stock_actual</code> no coinciden, se inserta un <code class="mono">MOVIMIENTO_STOCK</code> de <code class="mono">tipo = 'ajuste'</code> con la diferencia. Actualiza el cacheado como cualquier otro movimiento, y además deja registrado <em>cuándo</em> y <em>cuánto</em> se desvió — más útil que solo corregir el número, porque permite notar patrones (ajustes negativos repetidos = mermas que no se están cargando).</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3><code class="mono">RECETA</code>: la ausencia también es información</h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>CREATE TABLE receta (
+    producto_id INTEGER NOT NULL REFERENCES producto(id),
+    insumo_id   INTEGER NOT NULL REFERENCES insumo(id),
+    cantidad    NUMERIC(10,2) NOT NULL CHECK (cantidad > 0),
+    PRIMARY KEY (producto_id, insumo_id)
+);</code></pre>
+          </div>
+          <p>Mismo patrón de clave compuesta que <code class="mono">producto_adicional</code> y <code class="mono">promo_componente</code>. Lo importante no es la estructura sino la regla: <strong>sin fila en <code class="mono">receta</code>, la venta de ese producto nunca descuenta stock solo.</strong> Es la forma en que la decisión del sabor de helado (sesión 1) se vuelve real en el esquema — "Helado 1/4 kg" simplemente no tiene receta; su stock se mueve aparte, por apertura de pote.</p>
+        </article>
+
+        <article class="entry entry--decision">
+          <p class="entry-kind">Decisión de diseño</p>
+          <h3>¿Cuándo se descuenta el stock de una venta?</h3>
+          <div class="decision-options">
+            <div class="option chosen">
+              <span class="option-tag">Elegida</span>
+              <p><strong>Al cerrar el pedido</strong> — agregar o sacar un item de una mesa abierta es un simple INSERT/DELETE, sin generar ni revertir movimientos.</p>
+            </div>
+            <div class="option">
+              <span class="option-tag">Descartada</span>
+              <p><strong>Al agregar cada item</strong> — refleja el stock en tiempo real, pero exige un movimiento inverso cada vez que se anula un item.</p>
+            </div>
+          </div>
+          <p class="verdict"><strong>Costo asumido:</strong> mientras dos mesas tienen pedidos abiertos, ninguna sabe que la otra está comprometiendo el mismo insumo — si el último poco de un sabor se vende por partida doble, no se detecta hasta el cierre. Para 13 mesas de un local familiar es un riesgo chico y aceptado a conciencia; no lo sería para una cadena de alto volumen.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Un problema de orden: <code class="mono">MOVIMIENTO_STOCK</code> tiene que esperar</h3>
+          <p><code class="mono">MOVIMIENTO_STOCK</code> lleva FK hacia <code class="mono">COMPRA_ITEM</code> y <code class="mono">PEDIDO_ITEM</code> — y <code class="mono">PEDIDO_ITEM</code> ni siquiera es del bloque de stock, es del bloque de mesas y pedidos, el último del modelo. No es un error: es una propiedad real del esquema, <code class="mono">MOVIMIENTO_STOCK</code> es la tabla bisagra entre los tres bloques, así que se construye al final, después de terminar compras <em>y</em> pedidos. El orden de trabajo quedó así: compras → pedidos → recién entonces <code class="mono">movimiento_stock</code>.</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Proveedores y compras: cabecera + detalle</h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>CREATE TABLE proveedor (
+    id       INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre   VARCHAR(100) NOT NULL,
+    contacto VARCHAR(100)
+);
+
+CREATE TABLE insumo_proveedor (
+    insumo_id    INTEGER NOT NULL REFERENCES insumo(id),
+    proveedor_id INTEGER NOT NULL REFERENCES proveedor(id),
+    codigo       VARCHAR(50),
+    costo        NUMERIC(10,2) NOT NULL CHECK (costo > 0),
+    PRIMARY KEY (insumo_id, proveedor_id)
+);
+
+CREATE TABLE compra (
+    id           INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    proveedor_id INTEGER NOT NULL REFERENCES proveedor(id),
+    fecha        DATE NOT NULL DEFAULT CURRENT_DATE
+);
+
+CREATE TABLE compra_item (
+    id         INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    compra_id  INTEGER NOT NULL REFERENCES compra(id),
+    insumo_id  INTEGER NOT NULL REFERENCES insumo(id),
+    cantidad   NUMERIC(10,2) NOT NULL CHECK (cantidad > 0),
+    costo_unit NUMERIC(10,2) NOT NULL CHECK (costo_unit > 0)
+);</code></pre>
+          </div>
+          <ul class="tight">
+            <li><strong>proveedor.contacto</strong> — primera columna de texto libre sin <code class="mono">NOT NULL</code> a propósito: dato real que puede no estar disponible al cargar el proveedor.</li>
+            <li><strong>insumo_proveedor</strong> — misma clave compuesta de siempre, pero esta vez la tabla de relación también carga datos propios (<code class="mono">codigo</code>, <code class="mono">costo</code>), no solo la relación pelada.</li>
+            <li><strong>compra / compra_item</strong> — patrón <em>cabecera/detalle</em>: una compra trae varios insumos juntos, por eso son dos tablas (va a repetirse igual en <code class="mono">pedido</code>/<code class="mono">pedido_item</code>).</li>
+            <li><strong>costo_unit</strong> se congela en la línea de compra — igual que <code class="mono">precio_unit</code> en las ventas, para que un aumento de proveedor no altere compras ya hechas ni rompa el cálculo de márgenes históricos.</li>
+          </ul>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Bloque de mesas y pedidos: <code class="mono">mesa</code>, <code class="mono">pedido</code>, <code class="mono">pedido_item</code>, <code class="mono">pedido_item_adicional</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>CREATE TABLE mesa (
+    id     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    numero INTEGER NOT NULL UNIQUE,
+    activa BOOLEAN NOT NULL DEFAULT true
+);
+
+CREATE TABLE pedido (
+    id         INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    canal_id   INTEGER NOT NULL REFERENCES canal(id),
+    mesa_id    INTEGER REFERENCES mesa(id),
+    estado     VARCHAR(10) NOT NULL DEFAULT 'abierto' CHECK (estado IN ('abierto', 'cerrado', 'anulado')),
+    id_externo VARCHAR(50),
+    comision   NUMERIC(10,2) CHECK (comision >= 0),
+    creado_en  TIMESTAMP NOT NULL DEFAULT now(),
+    cerrado_en TIMESTAMP
+);
+
+CREATE TABLE pedido_item (
+    id          INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    pedido_id   INTEGER NOT NULL REFERENCES pedido(id),
+    producto_id INTEGER NOT NULL REFERENCES producto(id),
+    cantidad    INTEGER NOT NULL CHECK (cantidad > 0),
+    precio_unit NUMERIC(10,2) NOT NULL CHECK (precio_unit > 0)
+);
+
+CREATE TABLE pedido_item_adicional (
+    pedido_item_id INTEGER NOT NULL REFERENCES pedido_item(id),
+    adicional_id   INTEGER NOT NULL REFERENCES adicional(id),
+    precio_unit    NUMERIC(10,2) NOT NULL CHECK (precio_unit > 0),
+    PRIMARY KEY (pedido_item_id, adicional_id)
+);</code></pre>
+          </div>
+          <ul class="tight">
+            <li><strong>mesa_id, id_externo, comision</strong> sin <code class="mono">NOT NULL</code> a propósito — nulos en mostrador/apps según corresponda (decisión 10 del contexto).</li>
+            <li><strong>TIMESTAMP</strong> (fecha + hora) aparece por primera vez, en <code class="mono">creado_en</code>/<code class="mono">cerrado_en</code> — hasta ahora solo habíamos usado <code class="mono">DATE</code> (sin hora) para vigencias.</li>
+            <li><strong>estado DEFAULT 'abierto' CHECK (...)</strong> combina lo ya conocido (enum casero) con un valor inicial, para que un pedido nazca abierto sin que el código tenga que decirlo.</li>
+          </ul>
+        </article>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="colophon">
+    <p>Las decisiones de fondo del modelo quedan también en <code>CONTEXTO.md</code>, en la raíz del proyecto. Esta bitácora es el registro de cómo llegamos ahí — comandos, conceptos y el porqué de cada uno.</p>
+  </footer>
+
+</div>
