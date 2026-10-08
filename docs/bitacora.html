@@ -354,7 +354,7 @@
     <p class="eyebrow">Kainos · Base de datos</p>
     <h1>Bitácora Kainos</h1>
     <p class="lede">Registro de lo que vamos decidiendo, escribiendo y entendiendo en PostgreSQL para el sistema de la heladería y cafetería de la familia. Se va completando sesión a sesión, a medida que avanzamos con el esquema a mano.</p>
-    <p class="updated">Última actualización: <span class="tabular">7 oct 2026</span> · Sesión 3</p>
+    <p class="updated">Última actualización: <span class="tabular">8 oct 2026</span> · Sesión 4</p>
   </header>
 
   <section class="progress" aria-label="Estado del esquema">
@@ -780,6 +780,49 @@ CREATE TABLE pedido_item_adicional (
             <li><strong>TIMESTAMP</strong> (fecha + hora) aparece por primera vez, en <code class="mono">creado_en</code>/<code class="mono">cerrado_en</code> — hasta ahora solo habíamos usado <code class="mono">DATE</code> (sin hora) para vigencias.</li>
             <li><strong>estado DEFAULT 'abierto' CHECK (...)</strong> combina lo ya conocido (enum casero) con un valor inicial, para que un pedido nazca abierto sin que el código tenga que decirlo.</li>
           </ul>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="session">
+      <div class="session-marker">
+        <span class="session-date">8 oct 2026</span>
+        <span class="session-num">Sesión 4</span>
+      </div>
+
+      <div class="session-entries">
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Primeros datos reales: el menú de Kainos</h3>
+          <p>Se transcribieron dos secciones del menú real (fotografiado) — <strong>Copas</strong> y <strong>Delicias Heladas</strong> — 14 productos en total, con sus precios de canal salón. Antes de cargarlos, se vaciaron los productos de prueba:</p>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>DELETE FROM precio WHERE producto_id IN (3, 4);
+DELETE FROM producto;</code></pre>
+          </div>
+          <p>El orden importa: hay que borrar primero las filas de <code class="mono">precio</code> que referencian esos productos — la FK no deja borrar un producto todavía referenciado.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Subconsultas dentro de un <code class="mono">INSERT</code></h3>
+          <div class="code-block">
+            <div class="code-block__tab">sql</div>
+            <pre><code>INSERT INTO producto (categoria_id, nombre, tipo) VALUES
+    ((SELECT id FROM categoria WHERE nombre = 'Copas'), 'Chida', 'simple'),
+    ((SELECT id FROM categoria WHERE nombre = 'Copas'), 'Lemoncello', 'simple');</code></pre>
+          </div>
+          <p>En vez de mirar a mano el <code class="mono">id</code> de "Copas" con un <code class="mono">SELECT</code> aparte y copiarlo, <code class="mono">(SELECT id FROM categoria WHERE nombre = 'Copas')</code> es una <strong>subconsulta</strong>: una consulta completa metida adentro de otra, entre paréntesis. Postgres la resuelve primero (tiene que devolver un único valor para poder usarse así) y el resultado reemplaza directo ese lugar — menos pasos manuales, menos riesgo de transcribir mal un número.</p>
+          <p>Se usó también para enlazar <code class="mono">producto_id</code> y <code class="mono">canal_id</code> en los <code class="mono">INSERT</code> de <code class="mono">precio</code>, y <code class="mono">adicional_id</code>/<code class="mono">canal_id</code> en <code class="mono">adicional_precio</code>.</p>
+        </article>
+
+        <article class="entry entry--decision">
+          <p class="entry-kind">Decisión de diseño</p>
+          <h3>Un extra del menú real, bien clasificado</h3>
+          <p>El menú trae "Adicional crema o dulce de leche" a $2.000 — por el nombre, tentador cargarlo como un <code class="mono">producto</code> más. Pero es exactamente el caso para el que existe la tabla <code class="mono">adicional</code> (un extra que se suma a otra cosa, con precio propio): se cargó ahí, no en <code class="mono">producto</code>.</p>
+          <p>Nota aparte: el menú de mesa no lista helado por peso suelto (cuarto/medio kilo) ni paletas — se asumen implícitos en una heladería argentina y se venden en un mostrador aparte. No se fuerzan como <code class="mono">producto</code> en esta carga; la idea es terminar cargando/editando el catálogo completo desde el frontend más adelante, no a mano por SQL.</p>
         </article>
 
       </div>
