@@ -9,13 +9,13 @@ export async function listar(req, res, next) {
   try {
     const productos = await productosService.listar();
     res.json(productos);
-  } catch (error) {
-    // next(error) le dice a Express "saltá los middlewares normales que
+  } catch (err) {
+    // next(err) le dice a Express "saltá los middlewares normales que
     // siguen y mandá esto directo al manejador de errores" (el de 4
     // parámetros, registrado al final de index.js). Sin esto, un error
     // async que no se capture deja al cliente esperando una respuesta
     // que nunca llega.
-    next(error);
+    next(err);
   }
 }
 
@@ -25,8 +25,8 @@ export async function crear(req, res, next) {
         // app.use(express.json()) esté activo en index.js.
         const nuevoProducto = await productosService.crear(req.body);
         res.status(201).json(nuevoProducto); // 201 = se creó un recurso nuevo
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
     }
 }
 

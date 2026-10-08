@@ -28,17 +28,14 @@ app.get('/test-db', async (req, res) => {
     res.json(result.rows[0])
 });
 
-
+// Middleware de 4 parámetros = manejador de errores para Express. Solo se
+// ejecuta cuando algo llama a next(err) en cualquier ruta. Va después de
+// todas las rutas (para que las alcance a todas) y antes de app.listen,
+// por claridad de lectura.
+app.use(errorHandler)
 
 // Prende el servidor y lo deja escuchando en PORT. El callback corre una
 // sola vez, apenas arranca.
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en http://localhost:${PORT}`)
 })
-
-
-// Middleware de 4 parámetros = manejador de errores para Express. Solo se
-// ejecuta cuando algo llama a next(err) en cualquier ruta. Funciona acá
-// aunque esté después de app.listen() porque todo este archivo corre una
-// sola vez, de arriba a abajo, antes de que llegue ningún pedido real.
-app.use(errorHandler)

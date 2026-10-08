@@ -305,6 +305,49 @@
   }
   .cmd-step p { color: var(--ink-muted); font-size: 14px; max-width: 65ch; }
 
+  /* ---------- glosario ---------- */
+  .glossary { display: flex; flex-direction: column; gap: 28px; }
+
+  .glossary-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px clamp(16px, 4vw, 28px);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .glossary-group h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent-ink);
+  }
+
+  .term-list { margin: 0; display: flex; flex-direction: column; gap: 14px; }
+
+  .term-list dt {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+
+  .term-list dd {
+    margin: 0;
+    max-width: 68ch;
+    color: var(--ink-muted);
+    font-size: 14.5px;
+  }
+
+  .status-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .status-table th, .status-table td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--border); }
+  .status-table th { font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); }
+  .status-table td:first-child { font-family: var(--font-mono); color: var(--accent-ink); white-space: nowrap; }
+  .status-table td:last-child { color: var(--ink-muted); }
+
   /* ---------- colophon ---------- */
   .colophon { border-top: 1px solid var(--border); padding-top: 20px; font-size: 13.5px; color: var(--ink-muted); }
   .colophon code { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; color: var(--ink); }
@@ -343,6 +386,108 @@
       <li class="roadmap-item"><span class="step-num">09</span><span class="dot"></span>Validación de entrada con zod</li>
       <li class="roadmap-item"><span class="step-num">10</span><span class="dot"></span>Manejo de errores centralizado</li>
     </ol>
+  </section>
+
+  <section class="glossary" aria-label="Glosario técnico">
+    <p class="section-label">Glosario técnico — qué es cada cosa</p>
+
+    <div class="glossary-group">
+      <h3>JavaScript — conceptos del lenguaje</h3>
+      <dl class="term-list">
+        <dt>Función flecha (<code class="mono">=&gt;</code>)</dt>
+        <dd>Sintaxis corta para escribir funciones: <code class="mono">(req, res) =&gt; { ... }</code> es lo mismo que <code class="mono">function(req, res) { ... }</code>. Se usan todo el tiempo como funciones que se pasan de argumento a otra cosa (ver "callback").</dd>
+
+        <dt>Callback</dt>
+        <dd>Una función que se pasa como argumento a otra, para que esa otra la llame en el momento que corresponda — no corre donde se la escribe, sino después, cuando ocurre algo puntual. <code class="mono">app.listen(PORT, () =&gt; {...})</code>: esa función flecha es un callback que Node ejecuta una sola vez, apenas el servidor queda escuchando. Los handlers de ruta de Express también son callbacks: Express los llama cuando llega un pedido que matchea esa ruta.</dd>
+
+        <dt>Promise</dt>
+        <dd>Un objeto que representa un valor que todavía no está, pero va a estar (o va a fallar) en el futuro — típicamente el resultado de algo que tarda, como una consulta a una base o un pedido de red. <code class="mono">pool.query(...)</code> devuelve una promise, no el resultado directo.</dd>
+
+        <dt><code class="mono">async</code> / <code class="mono">await</code></dt>
+        <dd>Forma de trabajar con promises que se lee como código síncrono, de arriba a abajo, en vez de anidar callbacks. <code class="mono">await algo()</code> pausa esa función hasta que la promise se resuelve, y sigue con el valor real. Toda función que usa <code class="mono">await</code> adentro tiene que estar marcada <code class="mono">async</code>.</dd>
+
+        <dt>Desestructuración</dt>
+        <dd>Sacar valores de un objeto directo a variables, sin escribir <code class="mono">objeto.campo</code> cada vez. <code class="mono">function crear({ categoria_id, nombre, tipo })</code> desestructura el objeto que llega como argumento — equivale a recibir <code class="mono">datos</code> y después hacer <code class="mono">datos.categoria_id</code>, etc., pero en una sola línea.</dd>
+
+        <dt>Operador <code class="mono">||</code> como valor de respaldo</dt>
+        <dd><code class="mono">process.env.PORT || 3000</code>: si lo de la izquierda es "falsy" (<code class="mono">undefined</code>, <code class="mono">null</code>, <code class="mono">0</code>, <code class="mono">''</code>), usa lo de la derecha. Forma corta de decir "usá esto, y si no está, usá este otro valor".</dd>
+
+        <dt>Módulos (<code class="mono">import</code> / <code class="mono">export</code>)</dt>
+        <dd>Forma moderna de dividir código en archivos y compartir funciones entre ellos. <code class="mono">export</code> marca algo como disponible para otros archivos; <code class="mono">import</code> lo trae. Habilitado por <code class="mono">"type": "module"</code> en <code class="mono">package.json</code> — sin eso, Node esperaría la sintaxis vieja (<code class="mono">require</code>/<code class="mono">module.exports</code>, CommonJS).</dd>
+
+        <dt>Clases y herencia (<code class="mono">class X extends Y</code>)</dt>
+        <dd><code class="mono">AppError extends Error</code> crea una clase que hereda todo el comportamiento de la clase nativa <code class="mono">Error</code> de JS (mensaje, pila de llamadas) y le suma algo propio (<code class="mono">statusCode</code>). <code class="mono">super(message)</code> en el constructor es obligatorio al extender una clase — le pasa ese valor al constructor de <code class="mono">Error</code>, que es quien lo guarda de verdad en <code class="mono">.message</code>.</dd>
+      </dl>
+    </div>
+
+    <div class="glossary-group">
+      <h3>Node.js — el entorno que ejecuta el código</h3>
+      <dl class="term-list">
+        <dt><code class="mono">process.env</code></dt>
+        <dd>Objeto global con las variables de entorno — valores definidos por fuera del código, en <code class="mono">.env</code> o por el sistema/hosting.</dd>
+
+        <dt><code class="mono">--watch</code></dt>
+        <dd>Bandera nativa de Node que reinicia el proceso al detectar un archivo modificado — usada en el script <code class="mono">"dev"</code>, en vez del paquete <code class="mono">nodemon</code>.</dd>
+
+        <dt><code class="mono">--env-file=.env</code></dt>
+        <dd>Bandera nativa que carga las variables de un archivo <code class="mono">.env</code> dentro de <code class="mono">process.env</code>, sin necesitar el paquete <code class="mono">dotenv</code>.</dd>
+      </dl>
+    </div>
+
+    <div class="glossary-group">
+      <h3>Express — el framework del servidor</h3>
+      <dl class="term-list">
+        <dt>Middleware</dt>
+        <dd>Una función que se ejecuta en el medio del camino de un pedido HTTP, con la forma <code class="mono">(req, res, next)</code> (o <code class="mono">(err, req, res, next)</code> si es manejador de errores). Puede leer o modificar el pedido, responder directamente, o dejar pasar al siguiente middleware llamando a <code class="mono">next()</code>. <code class="mono">express.json()</code>, cualquier <code class="mono">app.use(...)</code>, y hasta las funciones de ruta son, técnicamente, middlewares.</dd>
+
+        <dt><code class="mono">req</code> (Request)</dt>
+        <dd>Objeto con todo lo que vino en el pedido: <code class="mono">req.body</code> (el JSON mandado, si lo hay), <code class="mono">req.params</code> (valores tomados de la URL, como el <code class="mono">:id</code>), <code class="mono">req.query</code> (parámetros después del <code class="mono">?</code> en la URL — todavía no los usamos).</dd>
+
+        <dt><code class="mono">res</code> (Response)</dt>
+        <dd>Objeto para construir la respuesta. <code class="mono">res.json(objeto)</code> la manda como JSON con el header correcto; <code class="mono">res.send(texto)</code> manda lo que sea y Express adivina el tipo; <code class="mono">res.status(codigo)</code> fija el código HTTP antes de mandar el cuerpo.</dd>
+
+        <dt><code class="mono">next()</code></dt>
+        <dd>Avanza al siguiente middleware en la fila. <code class="mono">next(err)</code> corta ese flujo normal y salta directo al manejador de errores (el middleware de 4 parámetros, registrado al final).</dd>
+
+        <dt><code class="mono">Router()</code></dt>
+        <dd>Una mini-app de Express para agrupar rutas relacionadas, que después se "monta" en la app principal bajo un prefijo con <code class="mono">app.use('/prefijo', router)</code>.</dd>
+
+        <dt>Verbos HTTP y su significado</dt>
+        <dd><code class="mono">GET</code> lee sin modificar nada; <code class="mono">POST</code> crea algo nuevo; <code class="mono">PUT</code> actualiza un recurso completo; <code class="mono">DELETE</code> sugiere "eliminar", aunque en Kainos nunca borra de verdad — ver el borrado lógico en la bitácora de SQL.</dd>
+      </dl>
+    </div>
+
+    <div class="glossary-group">
+      <h3>HTTP — códigos de estado que usamos</h3>
+      <table class="status-table">
+        <thead><tr><th>Código</th><th>Cuándo se usa</th></tr></thead>
+        <tbody>
+          <tr><td>200 OK</td><td>Pedido exitoso, por defecto (GET, PUT)</td></tr>
+          <tr><td>201 Created</td><td>Se creó un recurso nuevo (POST exitoso)</td></tr>
+          <tr><td>204 No Content</td><td>Éxito, pero no hay nada para devolver en el cuerpo (DELETE exitoso)</td></tr>
+          <tr><td>400 Bad Request</td><td>El pedido está mal formado — faltan campos obligatorios, por ejemplo</td></tr>
+          <tr><td>404 Not Found</td><td>El recurso pedido no existe</td></tr>
+          <tr><td>500 Internal Server Error</td><td>Algo salió mal del lado del servidor, no previsto específicamente</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glossary-group">
+      <h3>PostgreSQL + <code class="mono">pg</code> — acceso a datos desde Node</h3>
+      <dl class="term-list">
+        <dt><code class="mono">Pool</code></dt>
+        <dd>Mantiene varias conexiones abiertas a Postgres y las reparte entre pedidos concurrentes, en vez de una sola conexión que haría cola.</dd>
+
+        <dt>Consultas parametrizadas (<code class="mono">$1, $2, ...</code>)</dt>
+        <dd>Forma segura de meter valores externos en una consulta SQL — <code class="mono">pg</code> los trata siempre como datos, nunca como código, lo que evita la inyección SQL.</dd>
+
+        <dt><code class="mono">result.rows</code></dt>
+        <dd>Siempre un arreglo, sin importar cuántas filas devuelva la consulta (0, 1 o muchas) — por eso una consulta que busca una sola fila hace <code class="mono">result.rows[0]</code>.</dd>
+
+        <dt><code class="mono">RETURNING *</code></dt>
+        <dd>Le pide a Postgres que devuelva la fila afectada por un <code class="mono">INSERT</code>/<code class="mono">UPDATE</code>, evitando un <code class="mono">SELECT</code> aparte después.</dd>
+      </dl>
+    </div>
   </section>
 
   <main class="log">
