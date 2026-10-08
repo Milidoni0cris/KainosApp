@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import * as productosController from '../controllers/productos.controller.js';
+import { preciosRouter } from './precios.routes.js';
 
 // Router() es una mini-app de Express que agrupa rutas relacionadas; se
 // monta en index.js bajo un prefijo (app.use('/productos', productosRouter)),
@@ -13,3 +14,8 @@ productosRouter.post('/', productosController.crear);
 productosRouter.get('/:id', productosController.obtenerUno);
 productosRouter.put('/:id', productosController.actualizar);
 productosRouter.delete('/:id', productosController.eliminar);
+
+// Monta preciosRouter como sub-router, colgado del :id de un producto
+// puntual. El prefijo '/productos' solo existe acá (vía index.js), nunca
+// hardcodeado adentro de precios.routes.js.
+productosRouter.use('/:id/precios', preciosRouter);

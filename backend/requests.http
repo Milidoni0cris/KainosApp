@@ -26,3 +26,16 @@ Content-Type: application/json
 
 ### Desactivar (soft-delete) un producto
 DELETE http://localhost:3000/productos/6
+
+
+### Historial de precios de un producto
+GET http://localhost:3000/productos/8/precios
+
+### Agregar un precio nuevo
+POST http://localhost:3000/productos/8/precios
+Content-Type: application/json
+
+{
+  "canal_id": 1,
+  "monto": 17000
+}

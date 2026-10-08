@@ -382,7 +382,7 @@
       <li class="roadmap-item done"><span class="step-num">05</span><span class="dot"></span>Express instalado y funcionando ("hola mundo")</li>
       <li class="roadmap-item done"><span class="step-num">06</span><span class="dot"></span>Conexión a PostgreSQL desde Node</li>
       <li class="roadmap-item done"><span class="step-num">07</span><span class="dot"></span>Estructura en capas (rutas / controladores / servicios / acceso a datos)</li>
-      <li class="roadmap-item"><span class="step-num">08</span><span class="dot"></span>Primera rebanada: CRUD de productos con precios</li>
+      <li class="roadmap-item done"><span class="step-num">08</span><span class="dot"></span>Primera rebanada: CRUD de productos con precios</li>
       <li class="roadmap-item"><span class="step-num">09</span><span class="dot"></span>Validación de entrada con zod</li>
       <li class="roadmap-item"><span class="step-num">10</span><span class="dot"></span>Manejo de errores centralizado</li>
     </ol>
@@ -814,6 +814,77 @@ productosRouter.post('/', productosController.crear);</code></pre>
           </div>
           <p>Express reconoce un middleware con <strong>exactamente 4 parámetros</strong> (<code class="mono">err, req, res, next</code>) como manejador de errores — solo corre cuando algo le pasa un error con <code class="mono">next(err)</code>. Se registra una sola vez, al final de <code class="mono">index.js</code>, y centraliza en un solo lugar cómo se convierte cualquier error en respuesta HTTP. El patrón en cada controller es siempre <code class="mono">try { ... } catch (err) { next(err) }</code> — nunca se deja un error sin controlar.</p>
           <p><code class="mono">app.use(express.json())</code> también se agregó en <code class="mono">index.js</code>, antes de las rutas — sin esto, <code class="mono">req.body</code> queda <code class="mono">undefined</code> en un <code class="mono">POST</code>, porque Express no interpreta el JSON entrante solo.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Routers anidados y <code class="mono">mergeParams</code></h3>
+          <p>Para <code class="mono">GET/POST /productos/:id/precios</code> se armó un router propio para precio (<code class="mono">precios.routes.js</code>), separado de <code class="mono">productos.routes.js</code> — mismo criterio de "una capa, un archivo por recurso" que ya se venía siguiendo en <code class="mono">data</code>/<code class="mono">service</code>/<code class="mono">controller</code>.</p>
+          <div class="code-block">
+            <div class="code-block__tab">src/routes/precios.routes.js</div>
+            <pre><code>export const preciosRouter = Router({ mergeParams: true });
+
+preciosRouter.get('/', preciosController.listarPrecios);
+preciosRouter.post('/', preciosController.agregarPrecio);</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-block__tab">src/routes/productos.routes.js</div>
+            <pre><code>productosRouter.use('/:id/precios', preciosRouter);</code></pre>
+          </div>
+          <p>Se discutió la alternativa de escribir el path completo (<code class="mono">preciosRouter.get('/productos/:id/precios', ...)</code>) montado suelto en <code class="mono">index.js</code> — también funciona, sin necesitar <code class="mono">mergeParams</code>. La diferencia real: con el path completo escrito a mano, el string <code class="mono">'/productos'</code> queda duplicado en dos archivos (el mount de <code class="mono">index.js</code> y el de <code class="mono">precios.routes.js</code>); si cambia el prefijo, hay que acordarse de actualizar los dos lugares. Montando <code class="mono">preciosRouter</code> como sub-router de <code class="mono">productosRouter</code>, el prefijo <code class="mono">/productos</code> vive en un solo lugar. <code class="mono">mergeParams: true</code> es lo que permite que, aun viviendo en otro archivo, <code class="mono">preciosRouter</code> siga viendo el <code class="mono">:id</code> definido por su router padre — sin esa opción, <code class="mono">req.params.id</code> quedaría <code class="mono">undefined</code> adentro de <code class="mono">precios.controller.js</code>.</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Agregar un precio: transacción real</h3>
+          <p>Cambiar un precio no es un solo paso: hay que <strong>cerrar</strong> la fila vigente (<code class="mono">vigente_hasta</code>) e <strong>insertar</strong> una nueva — las dos, o ninguna. Si el cierre funciona pero el alta falla, el producto queda sin ningún precio vigente.</p>
+          <div class="code-block">
+            <div class="code-block__tab">src/data/precios.data.js</div>
+            <pre><code>export async function cerrarVigente(client, productoId, canalId) {
+  await client.query(
+    `UPDATE precio
+     SET vigente_hasta = GREATEST(vigente_desde, CURRENT_DATE - 1)
+     WHERE producto_id = $1 AND canal_id = $2 AND vigente_hasta IS NULL`,
+    [productoId, canalId]
+  );
+}
+
+export async function crear(client, { producto_id, canal_id, monto }) {
+  const result = await client.query(
+    'INSERT INTO precio (producto_id, canal_id, monto) VALUES ($1, $2, $3) RETURNING *',
+    [producto_id, canal_id, monto]
+  );
+  return result.rows[0];
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-block__tab">src/services/precios.service.js</div>
+            <pre><code>const client = await pool.connect();
+try {
+  await client.query('BEGIN');
+  await precioData.cerrarVigente(client, productoId, datos.canal_id);
+  const nuevoPrecio = await precioData.crear(client, {
+    producto_id: productoId,
+    canal_id: datos.canal_id,
+    monto: datos.monto,
+  });
+  await client.query('COMMIT');
+  return nuevoPrecio;
+} catch (err) {
+  await client.query('ROLLBACK');
+  throw err;
+} finally {
+  client.release();
+}</code></pre>
+          </div>
+          <p><code class="mono">pool.connect()</code> reserva una conexión fija y exclusiva (<code class="mono">client</code>), a diferencia de <code class="mono">pool.query()</code> que presta cualquier conexión libre y la devuelve al toque — con <code class="mono">pool.query()</code> dos veces seguidas, el <code class="mono">UPDATE</code> y el <code class="mono">INSERT</code> podrían terminar en dos sesiones de Postgres sin relación, y un <code class="mono">BEGIN</code> en una no protegería nada en la otra. Con <code class="mono">client</code>, <code class="mono">BEGIN</code> → <code class="mono">UPDATE</code> → <code class="mono">INSERT</code> → <code class="mono">COMMIT</code> corren todos en la misma sesión, como una unidad atómica real. Si algo falla en el medio, <code class="mono">ROLLBACK</code> deshace lo que se haya alcanzado a hacer. <code class="mono">client.release()</code> en el <code class="mono">finally</code> es obligatorio pase lo que pase — olvidarlo deja esa conexión "prestada" para siempre y el pool se va quedando sin conexiones disponibles.</p>
+        </article>
+
+        <article class="entry entry--decision">
+          <p class="entry-kind">Bug encontrado y arreglado</p>
+          <h3>Vigencia invertida al cerrar un precio creado el mismo día</h3>
+          <p>Primera versión de <code class="mono">cerrarVigente</code> restaba un día a ciegas (<code class="mono">vigente_hasta = CURRENT_DATE - 1</code>). Funciona si el precio venía de antes, pero si la fila se había creado <strong>hoy mismo</strong> (caso real: carga del menú y cambio de precio el mismo día), quedaba <code class="mono">vigente_desde</code> posterior a <code class="mono">vigente_hasta</code> — una vigencia que empieza después de haber terminado.</p>
+          <p class="verdict"><strong>Arreglo:</strong> <code class="mono">GREATEST(vigente_desde, CURRENT_DATE - 1)</code> — nunca cierra con una fecha anterior a cuando esa fila empezó. Límite que queda, documentado a propósito: si un mismo precio cambia <em>dos veces el mismo día</em>, la fila vieja y la nueva comparten fecha y technically se "solapan" ese día en la consulta de precio vigente. No se complica el modelo (agregar hora a la vigencia) por un caso que en el negocio real no debería pasar nunca.</p>
         </article>
 
       </div>
