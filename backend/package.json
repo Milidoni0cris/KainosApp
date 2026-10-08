@@ -22,6 +22,7 @@
   "type": "module",
   "dependencies": {
     "express": "^5.2.1",
-    "pg": "^8.23.1"
+    "pg": "^8.23.1",
+    "zod": "^4.6.5"
   }
 }

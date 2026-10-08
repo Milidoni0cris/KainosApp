@@ -383,7 +383,7 @@
       <li class="roadmap-item done"><span class="step-num">06</span><span class="dot"></span>Conexión a PostgreSQL desde Node</li>
       <li class="roadmap-item done"><span class="step-num">07</span><span class="dot"></span>Estructura en capas (rutas / controladores / servicios / acceso a datos)</li>
       <li class="roadmap-item done"><span class="step-num">08</span><span class="dot"></span>Primera rebanada: CRUD de productos con precios</li>
-      <li class="roadmap-item"><span class="step-num">09</span><span class="dot"></span>Validación de entrada con zod</li>
+      <li class="roadmap-item done"><span class="step-num">09</span><span class="dot"></span>Validación de entrada con zod</li>
       <li class="roadmap-item"><span class="step-num">10</span><span class="dot"></span>Manejo de errores centralizado</li>
     </ol>
   </section>
@@ -885,6 +885,44 @@ try {
           <h3>Vigencia invertida al cerrar un precio creado el mismo día</h3>
           <p>Primera versión de <code class="mono">cerrarVigente</code> restaba un día a ciegas (<code class="mono">vigente_hasta = CURRENT_DATE - 1</code>). Funciona si el precio venía de antes, pero si la fila se había creado <strong>hoy mismo</strong> (caso real: carga del menú y cambio de precio el mismo día), quedaba <code class="mono">vigente_desde</code> posterior a <code class="mono">vigente_hasta</code> — una vigencia que empieza después de haber terminado.</p>
           <p class="verdict"><strong>Arreglo:</strong> <code class="mono">GREATEST(vigente_desde, CURRENT_DATE - 1)</code> — nunca cierra con una fecha anterior a cuando esa fila empezó. Límite que queda, documentado a propósito: si un mismo precio cambia <em>dos veces el mismo día</em>, la fila vieja y la nueva comparten fecha y technically se "solapan" ese día en la consulta de precio vigente. No se complica el modelo (agregar hora a la vigencia) por un caso que en el negocio real no debería pasar nunca.</p>
+        </article>
+
+        <article class="entry entry--howto">
+          <p class="entry-kind">Cómo se hace</p>
+          <h3>Validación de entrada con <code class="mono">zod</code></h3>
+          <p>Reemplaza los <code class="mono">if (!datos.campo)</code> sueltos que vivían en los <code class="mono">services</code> por un middleware genérico que valida <code class="mono">req.body</code> <strong>antes</strong> de que el pedido llegue al controller.</p>
+          <div class="code-block">
+            <div class="code-block__tab">src/middleware/validate.js</div>
+            <pre><code>export function validate(schema) {
+  return (req, res, next) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      const mensaje = result.error.issues.map((i) => i.message).join(', ');
+      return next(new AppError(mensaje, 400));
+    }
+    req.body = result.data;
+    next();
+  };
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-block__tab">src/schemas/producto.schema.js</div>
+            <pre><code>export const productoSchema = z.object({
+  categoria_id: z.number().int().positive(),
+  nombre: z.string().min(1, 'El nombre no puede estar vacío'),
+  tipo: z.enum(['simple', 'promo']),
+});</code></pre>
+          </div>
+          <p>Uso en la ruta: <code class="mono">productosRouter.post('/', validate(productoSchema), productosController.crear)</code> — si el body no cumple el schema, el pedido ni llega a <code class="mono">crear</code>.</p>
+        </article>
+
+        <article class="entry">
+          <p class="entry-kind">Concepto</p>
+          <h3>Middleware factory, y por qué <code class="mono">safeParse</code> en vez de <code class="mono">parse</code></h3>
+          <p><code class="mono">validate</code> no es un middleware — es una función que <strong>devuelve</strong> uno, ya configurado con el schema que le pasaste. Por eso se usa como <code class="mono">validate(productoSchema)</code> y no <code class="mono">validate</code> solo: hace falta ejecutarla una vez para obtener la función real que Express va a llamar en cada pedido. Mismo patrón que cualquier función que arma y devuelve otra función.</p>
+          <p><code class="mono">schema.safeParse(dato)</code> nunca tira una excepción: devuelve <code class="mono">{ success: true, data }</code> o <code class="mono">{ success: false, error }</code>. La alternativa, <code class="mono">schema.parse(dato)</code>, explota si el dato no cumple — forzaría a envolver todo en un <code class="mono">try/catch</code>. Con <code class="mono">safeParse</code> se maneja el caso de error directo, como una rama más del código.</p>
+          <p><code class="mono">z.enum([...])</code> en el schema de producto es el espejo, del lado de Node, del <code class="mono">CHECK (tipo IN (...))</code> que ya existe en la tabla — quedan las dos capas protegiendo lo mismo: una evita el viaje a la base con un dato malo, la otra protege la base igual si algo la escribe sin pasar por esta API.</p>
+          <p class="entry-note"><strong>Gap que queda abierto:</strong> zod valida la <em>forma</em> del dato (que <code class="mono">categoria_id</code> sea un número positivo), no que esa categoría <em>exista de verdad</em> en la tabla. Un <code class="mono">categoria_id</code> válido pero inexistente todavía explota como 500 sin traducir, por la violación de FK de Postgres — se podría arreglar interpretando el código de error <code class="mono">23503</code>, pero queda pendiente, no es parte de esta rebanada.</p>
         </article>
 
       </div>

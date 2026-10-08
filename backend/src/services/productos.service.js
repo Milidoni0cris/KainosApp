@@ -9,12 +9,6 @@ export async function listar() {
 }
 
 export async function crear(datos) {
-    if (!datos.categoria_id || !datos.nombre || !datos.tipo) {
-        // AppError lleva un statusCode propio (400 acá = "pedido mal
-        // formado"). Viaja como una excepción normal de JS hasta que algún
-        // catch la agarre — en este caso, el catch del controller.
-        throw new AppError('Faltan datos obligatorios', 400);
-    }
     return productosData.crear(datos);
 }
 
@@ -31,9 +25,6 @@ export async function obtenerPorId(id) {
 
 export async function actualizar(id, datos) {
   await obtenerPorId(id); // tira 404 acá mismo si el id no existe
-  if (!datos.nombre || !datos.categoria_id || !datos.tipo) {
-    throw new AppError('Faltan campos obligatorios', 400);
-  }
   return productosData.actualizar(id, datos);
 }
 

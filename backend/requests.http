@@ -32,10 +32,20 @@ DELETE http://localhost:3000/productos/6
 GET http://localhost:3000/productos/8/precios
 
 ### Agregar un precio nuevo
-POST http://localhost:3000/productos/8/precios
+POST http://localhost:3000/productos/9/precios
 Content-Type: application/json
 
 {
   "canal_id": 1,
-  "monto": 17000
+  "monto": 17500
+}
+
+
+### Debería fallar: falta el nombre
+POST http://localhost:3000/productos
+Content-Type: application/json
+
+{
+  "categoria_id": 1,
+  "tipo": "simple"
 }

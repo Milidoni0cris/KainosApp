@@ -1,6 +1,9 @@
 import {Router} from 'express';
 import * as productosController from '../controllers/productos.controller.js';
 import { preciosRouter } from './precios.routes.js';
+import { validate } from '../middleware/validate.js';
+import { productoSchema } from '../schemas/producto.schema.js';
+
 
 // Router() es una mini-app de Express que agrupa rutas relacionadas; se
 // monta en index.js bajo un prefijo (app.use('/productos', productosRouter)),
@@ -10,9 +13,11 @@ export const productosRouter = Router();
 // Express revisa estas líneas en orden y usa la primera que matchee el
 // método HTTP + la forma de la URL del pedido entrante.
 productosRouter.get('/', productosController.listar);
-productosRouter.post('/', productosController.crear);
+// validate(productoSchema) corre ANTES que el controller: si req.body no
+// cumple el schema, corta ahí con un 400 y crear/actualizar ni se llaman.
+productosRouter.post('/', validate(productoSchema), productosController.crear);
 productosRouter.get('/:id', productosController.obtenerUno);
-productosRouter.put('/:id', productosController.actualizar);
+productosRouter.put('/:id', validate(productoSchema), productosController.actualizar);
 productosRouter.delete('/:id', productosController.eliminar);
 
 // Monta preciosRouter como sub-router, colgado del :id de un producto

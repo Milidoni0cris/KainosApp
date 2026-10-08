@@ -10,12 +10,6 @@ export async function listarPorProducto(productoId) {
 
 export async function agregar(productoId, datos) {
   await productosService.obtenerPorId(productoId);
-  if (!datos.canal_id || !datos.monto) {
-    throw new AppError('Faltan campos obligatorios (canal_id, monto)', 400);
-  }
-  if (datos.monto <= 0) {
-    throw new AppError('El monto tiene que ser mayor a cero', 400);
-  }
 
   // pool.connect() reserva UNA conexión fija y exclusiva (a diferencia de
   // pool.query(), que presta cualquier conexión libre y la devuelve en el
